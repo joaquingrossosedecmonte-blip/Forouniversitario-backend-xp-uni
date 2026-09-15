@@ -1,0 +1,31 @@
+# Dependencias
+node_modules/
+
+# Compilación
+dist/
+
+# Variables de entorno
+.env
+.env.*
+
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Neovim
+*.swp
+*.swo

@@ -1,0 +1,19 @@
+{
+  "name": "foro-universitario-backend",
+  "version": "1.0.0",
+  "description": "Backend del Foro Universitario desarrollado con TypeScript, Express, Prisma y BDD con Cucumber aplicando prácticas de XP.",
+  "main": "dist/src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/src/server.js",
+    "typecheck": "tsc --noEmit",
+    "bdd": "cucumber-js",
+    "test:e2e": "cucumber-js",
+    "lint": "eslint .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts"
+  }
+}
