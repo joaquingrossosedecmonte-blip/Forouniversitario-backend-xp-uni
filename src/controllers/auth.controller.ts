@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { AuthService } from '../services/auth.service.js';
 import { AppError } from '../errors/app.error.js';
+
 export class AuthController {
   constructor(
     private readonly authService: AuthService
@@ -22,16 +23,61 @@ export class AuthController {
         return;
       }
 
-      const usuario = await this.authService.registrarUsuario({
-        nombre,
-        correo,
-        password
-      });
+      const usuario =
+        await this.authService.registrarUsuario({
+          nombre,
+          correo,
+          password
+        });
 
       res.status(201).json({
         id: usuario.id,
         nombre: usuario.nombre,
         correo: usuario.correo
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          error: error.message
+        });
+
+        return;
+      }
+
+      res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+    }
+  };
+
+  login = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { correo, password } = req.body;
+
+      if (!correo || !password) {
+        res.status(400).json({
+          error: 'Correo y contraseña son obligatorios'
+        });
+
+        return;
+      }
+
+      const resultado =
+        await this.authService.iniciarSesion({
+          correo,
+          password
+        });
+
+      res.status(200).json({
+        token: resultado.token,
+        usuario: {
+          id: resultado.usuario.id,
+          nombre: resultado.usuario.nombre,
+          correo: resultado.usuario.correo
+        }
       });
     } catch (error) {
       if (error instanceof AppError) {

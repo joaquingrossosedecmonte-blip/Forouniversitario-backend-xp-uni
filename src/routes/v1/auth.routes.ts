@@ -11,5 +11,6 @@ const authService = new AuthService(usuarioRepository);
 const authController = new AuthController(authService);
 
 router.post('/registro', authController.registrar);
+router.post('/login', authController.login);
 
 export default router;
