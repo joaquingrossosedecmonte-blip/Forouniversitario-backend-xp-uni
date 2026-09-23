@@ -13,7 +13,7 @@ export class PublicacionController {
   ): Promise<void> => {
     const { titulo, contenido } = req.body;
 
-    if (!titulo || !contenido) {
+    if (!this.datosValidos(titulo, contenido)) {
       res.status(400).json({
         error: 'Título y contenido son obligatorios'
       });
@@ -29,4 +29,11 @@ export class PublicacionController {
 
     res.status(201).json(publicacion);
   };
+
+  private datosValidos(
+    titulo: unknown,
+    contenido: unknown
+  ): boolean {
+    return Boolean(titulo && contenido);
+  }
 }
