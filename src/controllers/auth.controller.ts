@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { AuthService } from '../services/auth.service.js';
-
+import { AppError } from '../errors/app.error.js';
 export class AuthController {
   constructor(
     private readonly authService: AuthService
@@ -34,11 +34,8 @@ export class AuthController {
         correo: usuario.correo
       });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === 'El correo ya está registrado'
-      ) {
-        res.status(409).json({
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
           error: error.message
         });
 
