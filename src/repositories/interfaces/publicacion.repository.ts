@@ -10,6 +10,10 @@ export interface CrearPublicacion {
 }
 
 export interface PublicacionRepository {
+  buscarPorId(
+    id: number
+  ): Promise<Publicacion | undefined>;
+
   crear(
     datos: CrearPublicacion
   ): Promise<Publicacion>;
