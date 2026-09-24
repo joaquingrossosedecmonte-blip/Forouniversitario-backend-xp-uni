@@ -30,4 +30,12 @@ export class PublicacionMemoryRepository
 
     return publicacion;
   }
+
+  async eliminar(
+    id: number
+  ): Promise<void> {
+    this.publicaciones = this.publicaciones.filter(
+      (publicacion) => publicacion.id !== id
+    );
+  }
 }

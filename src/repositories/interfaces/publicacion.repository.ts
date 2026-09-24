@@ -17,4 +17,8 @@ export interface PublicacionRepository {
   crear(
     datos: CrearPublicacion
   ): Promise<Publicacion>;
+
+  eliminar(
+    id: number
+  ): Promise<void>;
 }

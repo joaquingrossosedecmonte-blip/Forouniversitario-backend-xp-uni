@@ -13,12 +13,15 @@ let respuestaReporte: request.Response;
 Given(
   'que existe una publicación para reportar',
   async function () {
-    await request(app)
-      .post('/api/v1/publicaciones')
-      .send({
-        titulo: 'Publicación para reportar',
-        contenido: 'Contenido de prueba'
-      });
+    const respuesta =
+      await request(app)
+        .post('/api/v1/publicaciones')
+        .send({
+          titulo: 'Publicación para reportar',
+          contenido: 'Contenido de prueba'
+        });
+
+    this.publicacionId = respuesta.body.id;
   }
 );
 
@@ -26,7 +29,9 @@ When(
   'el estudiante reporta la publicación con el motivo {string}',
   async function (motivo: string) {
     respuestaReporte = await request(app)
-      .post('/api/v1/publicaciones/1/reportes')
+      .post(
+        `/api/v1/publicaciones/${this.publicacionId}/reportes`
+      )
       .send({
         motivo
       });
@@ -48,7 +53,9 @@ When(
   'el estudiante intenta reportar la publicación sin especificar el motivo',
   async function () {
     respuestaReporte = await request(app)
-      .post('/api/v1/publicaciones/1/reportes')
+      .post(
+        `/api/v1/publicaciones/${this.publicacionId}/reportes`
+      )
       .send({});
   }
 );
@@ -85,3 +92,5 @@ Then(
     }
   }
 );
+
+

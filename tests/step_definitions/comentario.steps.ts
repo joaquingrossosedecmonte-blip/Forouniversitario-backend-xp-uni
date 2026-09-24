@@ -13,12 +13,15 @@ let respuestaComentario: request.Response;
 Given(
   'que existe una publicación para comentar',
   async function () {
-    await request(app)
-      .post('/api/v1/publicaciones')
-      .send({
-        titulo: 'Publicación para comentar',
-        contenido: 'Contenido de prueba'
-      });
+    const respuesta =
+      await request(app)
+        .post('/api/v1/publicaciones')
+        .send({
+          titulo: 'Publicación para comentar',
+          contenido: 'Contenido de prueba'
+        });
+
+    this.publicacionId = respuesta.body.id;
   }
 );
 
@@ -33,7 +36,8 @@ When(
   'el estudiante comenta la publicación con el contenido {string}',
   async function (contenido: string) {
     respuestaComentario = await request(app)
-      .post('/api/v1/publicaciones/1/comentarios')
+      .post(
+        `/api/v1/publicaciones/${this.publicacionId}/comentarios`)
       .send({
         contenido
       });

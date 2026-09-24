@@ -13,22 +13,25 @@ let respuestaVoto: request.Response;
 Given(
   'que existe una publicación para votar',
   async function () {
-    await request(app)
-      .post('/api/v1/publicaciones')
-      .send({
-        titulo: 'Publicación para votar',
-        contenido: 'Contenido de prueba'
-      });
+    const respuesta =
+      await request(app)
+        .post('/api/v1/publicaciones')
+        .send({
+          titulo: 'Publicación para votar',
+          contenido: 'Contenido de prueba'
+        });
+
+    this.publicacionId = respuesta.body.id;
   }
 );
-
-
 
 When(
   'el estudiante vota la publicación con tipo {string}',
   async function (tipo: string) {
     respuestaVoto = await request(app)
-      .post('/api/v1/publicaciones/1/votos')
+      .post(
+        `/api/v1/publicaciones/${this.publicacionId}/votos`
+      )
       .send({
         tipo
       });
@@ -50,7 +53,9 @@ When(
   'el estudiante intenta votar la publicación sin especificar el tipo',
   async function () {
     respuestaVoto = await request(app)
-      .post('/api/v1/publicaciones/1/votos')
+      .post(
+        `/api/v1/publicaciones/${this.publicacionId}/votos`
+      )
       .send({});
   }
 );
@@ -87,3 +92,4 @@ Then(
     }
   }
 );
+

@@ -17,5 +17,13 @@ router.post(
   '/publicaciones',
   publicacionController.crear
 );
+router.delete(
+  '/publicaciones/',
+  publicacionController.eliminar
+);
 
+router.delete(
+  '/publicaciones/:publicacionId',
+  publicacionController.eliminar
+);
 export default router;
