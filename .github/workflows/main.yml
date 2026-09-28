@@ -26,8 +26,11 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Verificar TypeScript
-        run: npm run typecheck
+      - name: Ejecutar linter
+        run: npm run lint
+
+      - name: Compilar TypeScript
+        run: npm run build
 
       - name: Ejecutar pruebas BDD
         run: npm run test:e2e
