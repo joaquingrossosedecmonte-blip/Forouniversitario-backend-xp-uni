@@ -9,17 +9,35 @@ import request from 'supertest';
 import app from '../../src/app.js';
 
 let respuestaVoto: request.Response;
+let accessToken: string;
 
 Given(
   'que existe una publicación para votar',
   async function () {
-    const respuesta =
-      await request(app)
-        .post('/api/v1/publicaciones')
-        .send({
-          titulo: 'Publicación para votar',
-          contenido: 'Contenido de prueba'
-        });
+    await request(app)
+      .post('/api/v1/auth/registro')
+      .send({
+        nombre: 'Pedro',
+        correo: 'voto@universidad.com',
+        password: '123456'
+      });
+
+    const respuestaLogin = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        correo: 'voto@universidad.com',
+        password: '123456'
+      });
+
+    accessToken = respuestaLogin.body.accessToken;
+
+    const respuesta = await request(app)
+      .post('/api/v1/publicaciones')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        titulo: 'Publicación para votar',
+        contenido: 'Contenido de prueba'
+      });
 
     this.publicacionId = respuesta.body.id;
   }
@@ -92,4 +110,3 @@ Then(
     }
   }
 );
-

@@ -9,6 +9,7 @@ import request from 'supertest';
 import app from '../../src/app.js';
 
 let respuestaPublicacion: request.Response;
+let accessToken: string;
 
 Given(
   'que existe un usuario registrado para crear publicaciones',
@@ -20,6 +21,15 @@ Given(
         correo: 'publicacion@universidad.com',
         password: '123456'
       });
+
+    const respuestaLogin = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        correo: 'publicacion@universidad.com',
+        password: '123456'
+      });
+
+    accessToken = respuestaLogin.body.accessToken;
   }
 );
 
@@ -31,6 +41,10 @@ When(
   ) {
     respuestaPublicacion = await request(app)
       .post('/api/v1/publicaciones')
+      .set(
+        'Authorization',
+        `Bearer ${accessToken}`
+      )
       .send({
         titulo,
         contenido
@@ -43,6 +57,10 @@ When(
   async function (contenido: string) {
     respuestaPublicacion = await request(app)
       .post('/api/v1/publicaciones')
+      .set(
+        'Authorization',
+        `Bearer ${accessToken}`
+      )
       .send({
         contenido
       });
@@ -54,6 +72,10 @@ When(
   async function (titulo: string) {
     respuestaPublicacion = await request(app)
       .post('/api/v1/publicaciones')
+      .set(
+        'Authorization',
+        `Bearer ${accessToken}`
+      )
       .send({
         titulo
       });
@@ -85,7 +107,9 @@ Then(
 Then(
   'la respuesta de la publicación debe tener código {int}',
   async function (codigoEsperado: number) {
-    if (respuestaPublicacion.status !== codigoEsperado) {
+    if (
+      respuestaPublicacion.status !== codigoEsperado
+    ) {
       throw new Error(
         `Se esperaba ${codigoEsperado}, pero se recibió ${respuestaPublicacion.status}`
       );

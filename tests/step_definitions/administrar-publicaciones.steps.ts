@@ -10,11 +10,34 @@ import app from '../../src/app.js';
 
 let respuestaEliminacion: request.Response;
 
+let accessToken: string;
+
 Given(
   'que existe una publicación para eliminar',
   async function () {
     await request(app)
+      .post('/api/v1/auth/registro')
+      .send({
+        nombre: 'Administrador',
+        correo: 'admin@universidad.com',
+        password: '123456'
+      });
+
+    const respuestaLogin = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        correo: 'admin@universidad.com',
+        password: '123456'
+      });
+
+    accessToken = respuestaLogin.body.accessToken;
+
+    await request(app)
       .post('/api/v1/publicaciones')
+      .set(
+        'Authorization',
+        `Bearer ${accessToken}`
+      )
       .send({
         titulo: 'Publicación para eliminar',
         contenido: 'Contenido de prueba'
