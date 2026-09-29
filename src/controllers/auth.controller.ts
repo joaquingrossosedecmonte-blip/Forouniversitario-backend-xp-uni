@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 
 import { AuthService } from '../services/auth.service.js';
@@ -72,12 +73,52 @@ export class AuthController {
         });
 
       res.status(200).json({
-        token: resultado.token,
+        token: resultado.accessToken,
+        accessToken: resultado.accessToken,
+        refreshToken: resultado.refreshToken,
         usuario: {
           id: resultado.usuario.id,
           nombre: resultado.usuario.nombre,
           correo: resultado.usuario.correo
         }
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          error: error.message
+        });
+
+        return;
+      }
+
+      res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+    }
+  };
+
+  refresh = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        res.status(400).json({
+          error: 'Refresh token es obligatorio'
+        });
+
+        return;
+      }
+
+      const accessToken =
+        await this.authService.renovarAccessToken(
+          refreshToken
+        );
+
+      res.status(200).json({
+        accessToken
       });
     } catch (error) {
       if (error instanceof AppError) {

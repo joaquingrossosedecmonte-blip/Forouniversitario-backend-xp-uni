@@ -21,3 +21,10 @@ Feature: Inicio de sesión
     When el estudiante inicia sesión con correo "inexistente@universidad.com" y contraseña "123456"
     Then el inicio de sesión debe ser rechazado
     And la respuesta del login debe tener código 401
+  Scenario: Renovar el access token con un refresh token válido
+    Given que existe un usuario registrado con el correo "refresh@universidad.com" y contraseña "123456"
+    And el estudiante obtiene un refresh token válido
+    When el estudiante solicita renovar su access token
+    Then la renovación del token debe ser exitosa
+    And la respuesta del refresh debe tener código 200
+    And la respuesta del refresh debe contener un access token
