@@ -5,6 +5,7 @@ export interface AuthenticatedRequest extends Request {
   usuario?: {
     id: number;
     correo: string;
+    rol: string;
   };
 }
 
@@ -34,7 +35,9 @@ export function requireAuth(
     if (
       typeof payload === 'string' ||
       !payload.sub ||
-      !payload.correo
+      !payload.correo ||
+      !('rol' in payload) ||
+      typeof payload.rol !== 'string'
     ) {
       res.status(401).json({
         error: 'Token inválido'
@@ -45,7 +48,8 @@ export function requireAuth(
 
     req.usuario = {
       id: Number(payload.sub),
-      correo: String(payload.correo)
+      correo: String(payload.correo),
+      rol: payload.rol
     };
 
     next();

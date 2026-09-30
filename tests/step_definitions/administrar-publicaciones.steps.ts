@@ -5,67 +5,86 @@ import {
 } from '@cucumber/cucumber';
 
 import request from 'supertest';
+import jwt from 'jsonwebtoken';
 
 import app from '../../src/app.js';
 
 let respuestaEliminacion: request.Response;
 
-let accessToken: string;
+const crearTokenAdmin = (): string => {
+  return jwt.sign(
+    {
+      sub: 2,
+      correo: 'admin@universidad.com',
+      rol: 'ADMIN'
+    },
+    process.env.JWT_SECRET ?? 'secreto-desarrollo'
+  );
+};
 
 Given(
   'que existe una publicación para eliminar',
   async function () {
-    await request(app)
-      .post('/api/v1/auth/registro')
-      .send({
-        nombre: 'Administrador',
-        correo: 'admin@universidad.com',
-        password: '123456'
-      });
+    const tokenAdmin = crearTokenAdmin();
 
-    const respuestaLogin = await request(app)
-      .post('/api/v1/auth/login')
-      .send({
-        correo: 'admin@universidad.com',
-        password: '123456'
-      });
-
-    accessToken = respuestaLogin.body.accessToken;
-
-    await request(app)
+    const respuestaCreacion = await request(app)
       .post('/api/v1/publicaciones')
       .set(
         'Authorization',
-        `Bearer ${accessToken}`
+        `Bearer ${tokenAdmin}`
       )
       .send({
         titulo: 'Publicación para eliminar',
         contenido: 'Contenido de prueba'
       });
+
+    if (respuestaCreacion.status !== 201) {
+      throw new Error(
+        `No se pudo crear la publicación. Se recibió ${respuestaCreacion.status}`
+      );
+    }
   }
 );
 
 When(
   'el administrador elimina la publicación',
   async function () {
+    const tokenAdmin = crearTokenAdmin();
+
     respuestaEliminacion = await request(app)
-      .delete('/api/v1/publicaciones/1');
+      .delete('/api/v1/publicaciones/1')
+      .set(
+        'Authorization',
+        `Bearer ${tokenAdmin}`
+      );
   }
 );
 
 When(
   'el administrador intenta eliminar la publicación inexistente',
   async function () {
+    const tokenAdmin = crearTokenAdmin();
+
     respuestaEliminacion = await request(app)
-      .delete('/api/v1/publicaciones/999');
+      .delete('/api/v1/publicaciones/999')
+      .set(
+        'Authorization',
+        `Bearer ${tokenAdmin}`
+      );
   }
 );
 
 When(
   'el administrador intenta eliminar una publicación sin especificar el id',
   async function () {
+    const tokenAdmin = crearTokenAdmin();
+
     respuestaEliminacion = await request(app)
-      .delete('/api/v1/publicaciones/');
+      .delete('/api/v1/publicaciones/')
+      .set(
+        'Authorization',
+        `Bearer ${tokenAdmin}`
+      );
   }
 );
 

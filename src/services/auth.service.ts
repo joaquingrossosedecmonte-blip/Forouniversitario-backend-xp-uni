@@ -146,7 +146,8 @@ export class AuthService {
     return jwt.sign(
       {
         sub: usuario.id,
-        correo: usuario.correo
+        correo: usuario.correo,
+        rol: usuario.rol
       },
       secret,
       {
