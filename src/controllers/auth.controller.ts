@@ -7,8 +7,14 @@ import { AppError } from '../errors/app.error.js';
 export class AuthController {
   constructor(
     private readonly authService: AuthService
-  ) {}
-
+  ) { }
+  private sonTextos(
+    ...valores: unknown[]
+  ): boolean {
+    return valores.every(
+      (valor) => typeof valor === 'string'
+    );
+  }
   registrar = async (
     req: Request,
     res: Response
@@ -16,7 +22,12 @@ export class AuthController {
     try {
       const { nombre, correo, password } = req.body;
 
-      if (!nombre || !correo || !password) {
+      if (
+        !this.sonTextos(nombre, correo, password) ||
+        !nombre ||
+        !correo ||
+        !password
+      ) {
         res.status(400).json({
           error: 'Nombre, correo y contraseña son obligatorios'
         });
@@ -58,7 +69,11 @@ export class AuthController {
     try {
       const { correo, password } = req.body;
 
-      if (!correo || !password) {
+      if (
+        !this.sonTextos(correo, password) ||
+        !correo ||
+        !password
+      ) {
         res.status(400).json({
           error: 'Correo y contraseña son obligatorios'
         });
@@ -96,8 +111,7 @@ export class AuthController {
       });
     }
   };
-
-  refresh = async (
+      refresh = async (
     req: Request,
     res: Response
   ): Promise<void> => {
