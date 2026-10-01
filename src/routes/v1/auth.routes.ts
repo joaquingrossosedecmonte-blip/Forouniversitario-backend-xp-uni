@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { AuthController } from '../../controllers/auth.controller.js';
 import { AuthService } from '../../services/auth.service.js';
 import { UsuarioMemoryRepository } from '../../repositories/memory/usuario.memory.repository.js';
-
+import { loginRateLimiter } from '../../middlewares/rate-limit.middleware.js';
 const router = Router();
 
 const usuarioRepository = new UsuarioMemoryRepository();
@@ -11,7 +11,11 @@ const authService = new AuthService(usuarioRepository);
 const authController = new AuthController(authService);
 
 router.post('/registro', authController.registrar);
-router.post('/login', authController.login);
+router.post(
+  '/login',
+  loginRateLimiter,
+  authController.login
+);
 router.post('/refresh', authController.refresh);
 
 export default router;
