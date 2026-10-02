@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 
 import { AuthService } from '../services/auth.service.js';
@@ -6,8 +7,14 @@ import { AppError } from '../errors/app.error.js';
 export class AuthController {
   constructor(
     private readonly authService: AuthService
-  ) {}
-
+  ) { }
+  private sonTextos(
+    ...valores: unknown[]
+  ): boolean {
+    return valores.every(
+      (valor) => typeof valor === 'string'
+    );
+  }
   registrar = async (
     req: Request,
     res: Response
@@ -15,7 +22,12 @@ export class AuthController {
     try {
       const { nombre, correo, password } = req.body;
 
-      if (!nombre || !correo || !password) {
+      if (
+        !this.sonTextos(nombre, correo, password) ||
+        !nombre ||
+        !correo ||
+        !password
+      ) {
         res.status(400).json({
           error: 'Nombre, correo y contraseña son obligatorios'
         });
@@ -57,7 +69,11 @@ export class AuthController {
     try {
       const { correo, password } = req.body;
 
-      if (!correo || !password) {
+      if (
+        !this.sonTextos(correo, password) ||
+        !correo ||
+        !password
+      ) {
         res.status(400).json({
           error: 'Correo y contraseña son obligatorios'
         });
@@ -72,12 +88,51 @@ export class AuthController {
         });
 
       res.status(200).json({
-        token: resultado.token,
+        token: resultado.accessToken,
+        accessToken: resultado.accessToken,
+        refreshToken: resultado.refreshToken,
         usuario: {
           id: resultado.usuario.id,
           nombre: resultado.usuario.nombre,
           correo: resultado.usuario.correo
         }
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          error: error.message
+        });
+
+        return;
+      }
+
+      res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+    }
+  };
+      refresh = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        res.status(400).json({
+          error: 'Refresh token es obligatorio'
+        });
+
+        return;
+      }
+
+      const accessToken =
+        await this.authService.renovarAccessToken(
+          refreshToken
+        );
+
+      res.status(200).json({
+        accessToken
       });
     } catch (error) {
       if (error instanceof AppError) {

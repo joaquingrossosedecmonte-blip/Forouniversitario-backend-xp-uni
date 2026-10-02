@@ -10,12 +10,35 @@ import app from '../../src/app.js';
 
 let respuestaReporte: request.Response;
 
+let accessToken: string;
+
 Given(
   'que existe una publicación para reportar',
   async function () {
+    await request(app)
+      .post('/api/v1/auth/registro')
+      .send({
+        nombre: 'Pedro',
+        correo: 'reporte@universidad.com',
+        password: '123456'
+      });
+
+    const respuestaLogin = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        correo: 'reporte@universidad.com',
+        password: '123456'
+      });
+
+    accessToken = respuestaLogin.body.accessToken;
+
     const respuesta =
       await request(app)
         .post('/api/v1/publicaciones')
+        .set(
+          'Authorization',
+          `Bearer ${accessToken}`
+        )
         .send({
           titulo: 'Publicación para reportar',
           contenido: 'Contenido de prueba'

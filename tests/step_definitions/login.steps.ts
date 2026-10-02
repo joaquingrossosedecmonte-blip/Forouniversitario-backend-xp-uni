@@ -82,3 +82,68 @@ Then(
     }
   }
 );
+let refreshToken: string;
+let respuestaRefresh: request.Response;
+
+Given(
+  'el estudiante obtiene un refresh token válido',
+  async function () {
+    const respuesta = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        correo: 'refresh@universidad.com',
+        password: '123456'
+      });
+
+    refreshToken = respuesta.body.refreshToken;
+  }
+);
+
+When(
+  'el estudiante solicita renovar su access token',
+  async function () {
+    respuestaRefresh = await request(app)
+      .post('/api/v1/auth/refresh')
+      .send({
+        refreshToken
+      });
+  }
+);
+
+Then(
+  'la renovación del token debe ser exitosa',
+  async function () {
+
+
+
+
+
+    if (respuestaRefresh.status >= 400) {
+      throw new Error(
+        'La renovación del token debería haber sido exitosa'
+      );
+    }
+  }
+);
+
+Then(
+  'la respuesta del refresh debe tener código {int}',
+  async function (codigoEsperado: number) {
+    if (respuestaRefresh.status !== codigoEsperado) {
+      throw new Error(
+        `Se esperaba ${codigoEsperado}, pero se recibió ${respuestaRefresh.status}`
+      );
+    }
+  }
+);
+
+Then(
+  'la respuesta del refresh debe contener un access token',
+  async function () {
+    if (!respuestaRefresh.body.accessToken) {
+      throw new Error(
+        'La respuesta debería contener un access token'
+      );
+    }
+  }
+);

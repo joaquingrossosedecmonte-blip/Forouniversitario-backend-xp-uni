@@ -21,6 +21,7 @@ export class UsuarioMemoryRepository implements UsuarioRepository {
   ): Promise<Usuario> {
     const usuario: Usuario = {
       id: this.siguienteId++,
+      rol: datos.rol ?? 'USER',
       ...datos
     };
 
