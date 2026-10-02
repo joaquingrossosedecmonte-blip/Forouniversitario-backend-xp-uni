@@ -1,243 +1,157 @@
-# Foro Universitario - Backend XP
+# Foro Universitario - Backend
 
-Backend del **Foro Universitario** desarrollado como trabajo práctico para aplicar prácticas de **Programación Extrema (XP)**.
+Backend de un foro para estudiantes, API REST con TypeScript y Express donde se puede registrarse, iniciar sesión, publicar, comentar, votar y reportar publicaciones. Un administrador puede eliminar las publicaciones reportadas.
 
-El proyecto implementa una **API REST con TypeScript y Express**, incorporando **BDD con Cucumber**, desarrollo guiado por pruebas, refactorización, diseño simple e integración continua mediante GitHub Actions.
+Cada funcionalidad se escribió primero como escenario de Cucumber (BDD), se vio fallar, se programó lo mínimo para que pasara y después se limpió el código. Con capturas de proceso.
 
 ## Tecnologías
 
-- Node.js
-- TypeScript
-- Express
-- Cucumber
-- Supertest
-- bcrypt
-- JSON Web Token (JWT)
-- Prisma
-- ESLint
-- GitHub Actions
+Node.js 22, TypeScript, Express 5, bcrypt, jsonwebtoken, Cucumber con Supertest para las pruebas, ESLint y GitHub Actions. Prisma está instalado pero todavía no se usa.
 
-## Arquitectura
+## Ejecución
 
-El proyecto utiliza una separación por responsabilidades entre rutas, controladores, servicios y repositorios.
-
-```text
-src/
-├── controllers/
-├── errors/
-├── repositories/
-│   ├── interfaces/
-│   └── memory/
-├── routes/
-│   └── v1/
-├── services/
-├── app.ts
-└── server.ts
-
-features/
-└── *.feature
-
-tests/
-└── step_definitions/
-    └── *.steps.ts
-```
-
-Actualmente, las funcionalidades implementadas utilizan repositorios en memoria. Prisma forma parte de la configuración del proyecto y queda preparado para trabajar con persistencia mediante base de datos.
-
-## Historias de Usuario
-
-El proyecto implementa las siguientes historias funcionales:
-
-- **HU-01:** Registro de usuario.
-- **HU-02:** Inicio de sesión.
-- **HU-03:** Crear publicación.
-- **HU-04:** Comentar una publicación.
-- **HU-05:** Votar una publicación.
-- **HU-06:** Reportar una publicación.
-- **HU-07:** Eliminar una publicación reportada como administrador.
-
-También se implementaron historias técnicas:
-
-- **HT-01:** Almacenamiento seguro de contraseñas mediante hashing.
-- **HT-02:** Integración continua para automatizar las validaciones del proyecto.
-
-## Prácticas de Programación Extrema
-
-Durante el desarrollo se aplicaron diferentes prácticas y principios de XP.
-
-### BDD
-
-Cada funcionalidad se describe mediante archivos `.feature` utilizando Cucumber.
-
-Los escenarios incluyen casos exitosos y casos de error para verificar el comportamiento esperado de cada funcionalidad.
-
-### TDD
-
-El desarrollo sigue el ciclo:
-
-```text
-RED → GREEN → REFACTOR
-```
-
-Primero se define el comportamiento esperado mediante las pruebas. Luego se implementa la funcionalidad mínima necesaria para hacerlas pasar y finalmente se refactoriza el código manteniendo el comportamiento esperado.
-
-### Diseño simple
-
-Se implementa solamente la lógica necesaria para cumplir las historias de usuario, evitando agregar funcionalidades que todavía no son requeridas.
-
-### Refactorización
-
-Después de obtener pruebas exitosas se realizan mejoras en la estructura y organización del código sin modificar el comportamiento esperado.
-
-### Integración continua
-
-GitHub Actions ejecuta automáticamente las principales validaciones del proyecto:
-
-```text
-npm ci
-   ↓
-npm run lint
-   ↓
-npm run build
-   ↓
-npm run test:e2e
-```
-
-El workflow se ejecuta ante cambios en la rama `main` y ante Pull Requests dirigidos hacia `main`.
-
-## Requisitos
-
-Para ejecutar el proyecto se necesita tener instalado:
-
-- Node.js 22 o superior.
-- npm.
-
-## Instalación
-
-Clonar el repositorio y acceder a la carpeta del proyecto:
+Hace falta Node.js 22 o superior.
 
 ```bash
 git clone <URL_DEL_REPOSITORIO>
 cd Forouniversitario-backend-xp-uni
-```
-
-Instalar las dependencias:
-
-```bash
 npm install
 ```
 
-## Variables de entorno
-
-Crear un archivo `.env` en la raíz del proyecto tomando como referencia `.env.example`.
-
-Las variables utilizadas incluyen la configuración del puerto y el secreto utilizado para generar los tokens JWT.
-
-Ejemplo:
-
-```env
-PORT=3000
-NODE_ENV=development
-JWT_SECRET=secreto-desarrollo
-```
-
-> El archivo `.env` no debe subirse al repositorio.
-
-## Ejecutar el servidor
-
-Para iniciar el servidor en modo desarrollo:
+Copiar `.env.example` a `.env`. Las variables que usa hoy el proyecto son `PORT` (por defecto 3000) y `JWT_SECRET`. `DATABASE_URL` queda para cuando se conecte la base de datos.
 
 ```bash
 npm run dev
 ```
 
-El servidor utiliza el puerto `3000` por defecto.
+El servidor queda en `http://localhost:3000`, con todas las rutas bajo `/api/v1`.
 
-## Pruebas BDD
-
-Para ejecutar los escenarios de Cucumber:
+Otros comandos:
 
 ```bash
-npm run test:e2e
+npm run test:e2e     # escenarios de Cucumber
+npm run typecheck    # chequeo de tipos
+npm run lint         # ESLint
+npm run build        # compila a dist/
+npm start            # corre lo compilado
 ```
 
-Las pruebas BDD verifican las funcionalidades implementadas mediante los escenarios definidos en la carpeta `features/`.
+La prueba del hash de contraseñas (HT-01) es un script aparte:
 
-Resultado actual:
+```bash
+npx tsx tests/auth.service.security.test.ts
+```
+
+## Endpoints
+
+| Método | Ruta | Body | Respuestas |
+| --- | --- | --- | --- |
+| POST | `/auth/registro` | nombre, correo, password | 201, 400, 409 si el correo ya existe |
+| POST | `/auth/login` | correo, password | 200 con token, 400, 401 |
+| POST | `/publicaciones` | titulo, contenido | 201, 400 |
+| DELETE | `/publicaciones/:publicacionId` | | 204, 400, 404 |
+| POST | `/publicaciones/:publicacionId/comentarios` | contenido | 201, 400, 404 |
+| POST | `/publicaciones/:publicacionId/votos` | tipo | 201, 400, 404 |
+| POST | `/publicaciones/:publicacionId/reportes` | motivo | 201, 400, 404 |
+
+Los errores vuelven como `{ "error": "mensaje" }`. Un ejemplo con curl:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/registro \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Juan","correo":"juan@universidad.com","password":"123456"}'
+```
+
+## Estructura
 
 ```text
-21 scenarios (21 passed)
-84 steps (84 passed)
+src/
+  routes/v1/       rutas y armado de dependencias
+  controllers/     leen el request y devuelven la respuesta HTTP
+  services/        reglas de negocio
+  repositories/
+    interfaces/    contratos de acceso a datos
+    memory/        implementación en memoria
+  errors/          AppError (mensaje + código HTTP)
+  app.ts           configuración de Express
+  server.ts        arranque del servidor
+features/          escenarios .feature
+tests/             pasos de Cucumber y prueba de seguridad
+registro/          capturas del ciclo rojo / verde
 ```
 
-## Verificar TypeScript
+Una petición pasa por ruta, controlador, servicio y repositorio. Los servicios usan las interfaces de los repositorios y no la implementación, así que cambiar la memoria por una base de datos se hace escribiendo repositorios nuevos, sin tocar servicios ni controladores. Los servicios lanzan `AppError` cuando algo no cumple una regla (publicación inexistente, correo repetido) y el controlador lo convierte en la respuesta HTTP.
 
-Para comprobar los tipos sin generar los archivos compilados:
+## Historias de usuario
 
-```bash
-npm run typecheck
-```
+- HU-01: registro de usuario
+- HU-02: inicio de sesión
+- HU-03: crear publicación
+- HU-04: comentar una publicación
+- HU-05: votar una publicación
+- HU-06: reportar una publicación
+- HU-07: eliminar una publicación reportada (administrador)
+- HT-01: guardar las contraseñas con hash (bcrypt)
+- HT-02: integración continua con GitHub Actions
 
-## Compilar el proyecto
+Cada una tiene su archivo en `features/` con un caso exitoso y casos de error. En total son 21 escenarios y 84 pasos.
 
-Para realizar la compilación de TypeScript:
+## Cómo se trabajó
 
-```bash
-npm run build
-```
+Se siguió el ciclo rojo, verde, refactor. Primero se escribe el escenario y se corre para verlo fallar, después se agrega el código justo para que pase y por último se ordena. Cada historia sumó tres escenarios: de 9 escenarios en HU-03 se llegó a 21 en HU-07.
 
-## Ejecutar ESLint
+### Ejemplo: HU-03, crear publicación
 
-Para comprobar la calidad y las reglas de estilo del código:
+Primero el escenario existe pero sus pasos todavía no están definidos:
 
-```bash
-npm run lint
-```
+![HU-03, pasos sin definir](registro/HU-03-pruebaroja-200.png)
 
-## Estado actual del proyecto
+Con los pasos escritos, las pruebas fallan porque la ruta no existe (esperaban 400 y recibieron 404):
 
-Actualmente, las pruebas BDD se encuentran en estado satisfactorio:
+![HU-03, escenarios fallando](registro/HU-03-prubaroja2-200.png)
 
-```text
-21 scenarios (21 passed)
-84 steps (84 passed)
-```
+Después de implementar la ruta, el servicio y el repositorio, pasan los 9 escenarios:
 
-Además, el proyecto pasa correctamente las siguientes validaciones:
+![HU-03, escenarios en verde](registro/HU-03-prubaverde-200.png)
 
-```bash
-npm run lint
-npm run build
-npm run test:e2e
-```
+### Ejemplo: HU-02, inicio de sesión
 
-## Integración continua
+Antes de implementar el login, tres escenarios fallan:
 
-El proyecto cuenta con un workflow de GitHub Actions ubicado en:
+![HU-02, rojo](registro/HU-02-pruebaroja-200.png)
 
-```text
-.github/workflows/main.yml
-```
+Con el login hecho pasan los 6 escenarios de registro y login:
 
-El pipeline instala las dependencias y ejecuta automáticamente:
+![HU-02, verde](registro/HU-02-puebaverde-200.png)
 
-1. ESLint para verificar el código.
-2. Compilación de TypeScript.
-3. Pruebas BDD con Cucumber.
+### HT-01, contraseñas con hash
 
-De esta manera, cada cambio enviado al repositorio puede ser validado automáticamente.
+La prueba registra un usuario y comprueba que lo guardado no sea la contraseña original y que `bcrypt.compare` la reconozca:
+
+![HT-01, prueba de hash](registro/HT-01-prubacontrase%C3%B1a-200.png)
+
+### Resultado final
+
+Con HU-07 terminada pasan los 21 escenarios:
+
+![HU-07, 21 escenarios en verde](registro/HU-07-pruebaverde-200.png)
+
+## Prácticas de XP aplicadas
+
+- BDD: cada historia está escrita en Gherkin ("Como... Quiero... Para...") dentro de `features/`, antes de programarla.
+- TDD: el ciclo rojo, verde, refactor descrito arriba, con las capturas como evidencia.
+- Diseño simple: solo se programó lo que pedía cada historia. Por ejemplo, el voto todavía no valida el tipo ni evita votos repetidos porque ninguna historia lo pide.
+- Refactorización: con las pruebas en verde se ordenó el código. Un ejemplo es que el repositorio de publicaciones se arma una sola vez en `routes/v1/dependencies.ts` y lo comparten las rutas.
+- Integración continua: cada push o Pull Request a `main` corre las validaciones en GitHub Actions.
 
 ## Decisiones de diseño
 
-Durante el desarrollo se buscó mantener una estructura simple y separada por responsabilidades.
+- Los repositorios son en memoria para no depender de una base de datos en las primeras iteraciones. Como los servicios usan interfaces, después se pueden reemplazar por repositorios con Prisma.
+- Las contraseñas se guardan con bcrypt y nunca se devuelven en las respuestas.
+- El login responde igual (401) si el correo no existe o si la contraseña es incorrecta, para no revelar qué usuarios están registrados.
+- Las rutas están bajo `/api/v1` para poder cambiar la API más adelante sin romper a quien ya la use.
+- Las pruebas llaman a la API completa con Supertest, así validan lo que realmente ve el cliente y no clases sueltas.
 
-Las principales decisiones fueron:
+## Integración continua
 
-- Separar **rutas, controladores, servicios y repositorios**.
-- Utilizar repositorios en memoria para mantener una implementación sencilla durante las primeras iteraciones.
-- Utilizar **bcrypt** para almacenar las contraseñas mediante hashing.
-- Utilizar **JWT** para la autenticación.
-- Implementar las funcionalidades de forma incremental a partir de las historias de usuario.
-- Utilizar Cucumber para describir y validar el comportamiento mediante BDD.
-- Aplicar el ciclo **RED → GREEN → REFACTOR** durante el desarrollo.
-- Incorporar GitHub Actions para automatizar las validaciones del proyecto.
+El workflow `.github/workflows/main.yml` corre con cada push a `main` y con cada Pull Request hacia `main`. Usa Node 22 y ejecuta en orden `npm ci`, `npm run lint`, `npm run build` y `npm run test:e2e`.
