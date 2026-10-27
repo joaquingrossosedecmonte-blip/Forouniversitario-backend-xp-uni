@@ -12,6 +12,13 @@ app.use(
 );
 app.use(express.json());
 
+app.get('/', (_req: Request, res: Response) => {
+  res.status(200).json({
+    mensaje: 'API Foro Universitario funcionando',
+    api: '/api/v1'
+  });
+});
+
 app.use('/api/v1', apiRoutes);
 
 app.use((_req: Request, res: Response) => {
