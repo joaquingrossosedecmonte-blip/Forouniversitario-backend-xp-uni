@@ -241,3 +241,13 @@ Las principales decisiones fueron:
 - Utilizar Cucumber para describir y validar el comportamiento mediante BDD.
 - Aplicar el ciclo **RED → GREEN → REFACTOR** durante el desarrollo.
 - Incorporar GitHub Actions para automatizar las validaciones del proyecto.
+## Probar la API con Postman
+
+1. Copiar `.env.example` a `.env` (incluye `ADMIN_CORREO` y `ADMIN_PASSWORD`, que crean un administrador al iniciar el servidor).
+2. Levantar el servidor con `npm run dev` (por defecto en `http://localhost:3000`).
+3. En Postman, **Import** → seleccionar los archivos de la carpeta `postman/`:
+   - `foro-universitario.postman_collection.json`
+   - `foro-universitario.postman_environment.json` (opcional, define `baseUrl`)
+4. Ejecutar en orden: `Auth > Registro`, `Auth > Login usuario`, `Auth > Login admin` y después las peticiones de `Publicaciones`.
+
+Los tokens (`userAccessToken`, `adminAccessToken`) y el `publicacionId` de la última publicación creada se guardan automáticamente en las variables de la colección. Los datos se guardan en memoria, así que se pierden al reiniciar el servidor.
