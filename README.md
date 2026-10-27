@@ -241,6 +241,7 @@ Las principales decisiones fueron:
 - Utilizar Cucumber para describir y validar el comportamiento mediante BDD.
 - Aplicar el ciclo **RED → GREEN → REFACTOR** durante el desarrollo.
 - Incorporar GitHub Actions para automatizar las validaciones del proyecto.
+
 ## Probar la API con Postman
 
 1. Copiar `.env.example` a `.env` (incluye `ADMIN_CORREO` y `ADMIN_PASSWORD`, que crean un administrador al iniciar el servidor).
