@@ -22,4 +22,8 @@ export class ReporteMemoryRepository
 
     return reporte;
   }
+
+  async listar(): Promise<Reporte[]> {
+    return [...this.reportes];
+  }
 }

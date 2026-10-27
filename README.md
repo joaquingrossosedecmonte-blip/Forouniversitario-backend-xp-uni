@@ -252,3 +252,22 @@ Las principales decisiones fueron:
 4. Ejecutar en orden: `Auth > Registro`, `Auth > Login usuario`, `Auth > Login admin` y después las peticiones de `Publicaciones`.
 
 Los tokens (`userAccessToken`, `adminAccessToken`) y el `publicacionId` de la última publicación creada se guardan automáticamente en las variables de la colección. Los datos se guardan en memoria, así que se pierden al reiniciar el servidor.
+
+## Panel web
+
+Con el servidor levantado (`npm run dev`), abrir `http://localhost:3000` en el navegador. La página (carpeta `public/`) la sirve el mismo Express y permite:
+
+- Ver las publicaciones con autor, fecha, votos, comentarios y reportes, con búsqueda, orden y actualización automática.
+- Registrarse, iniciar sesión, publicar, comentar, votar y reportar.
+- Con una cuenta ADMIN: ver los usuarios y los reportes, y eliminar publicaciones.
+
+Endpoints de lectura agregados para el panel:
+
+| Método | Ruta | Acceso |
+|---|---|---|
+| GET | `/api/v1/resumen` | Público |
+| GET | `/api/v1/publicaciones` | Público |
+| GET | `/api/v1/publicaciones/:publicacionId` | Público |
+| GET | `/api/v1/auth/perfil` | Usuario autenticado |
+| GET | `/api/v1/usuarios` | ADMIN |
+| GET | `/api/v1/reportes` | ADMIN |

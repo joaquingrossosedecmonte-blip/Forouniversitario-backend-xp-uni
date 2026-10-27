@@ -13,4 +13,6 @@ export interface VotoRepository {
   crear(
     datos: CrearVoto
   ): Promise<Voto>;
+
+  listar(): Promise<Voto[]>;
 }

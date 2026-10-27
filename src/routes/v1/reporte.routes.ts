@@ -2,14 +2,13 @@ import { Router } from 'express';
 
 import { ReporteController } from '../../controllers/reporte.controller.js';
 import { ReporteService } from '../../services/reporte.service.js';
-import { ReporteMemoryRepository } from '../../repositories/memory/reporte.memory.repository.js';
 
-import { publicacionRepository } from './dependencies.js';
+import {
+  reporteRepository,
+  publicacionRepository
+} from './dependencies.js';
 
 const router = Router();
-
-const reporteRepository =
-  new ReporteMemoryRepository();
 
 const reporteService =
   new ReporteService(

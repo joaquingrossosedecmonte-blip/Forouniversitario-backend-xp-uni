@@ -8,6 +8,7 @@ import { AppError } from '../errors/app.error.js';
 interface CrearPublicacionInput {
   titulo: string;
   contenido: string;
+  autorId?: number;
 }
 
 export class PublicacionService {
@@ -20,7 +21,8 @@ export class PublicacionService {
   ): Promise<Publicacion> {
     return this.publicacionRepository.crear({
       titulo: datos.titulo,
-      contenido: datos.contenido
+      contenido: datos.contenido,
+      autorId: datos.autorId
     });
   }
 

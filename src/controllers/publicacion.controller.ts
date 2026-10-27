@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { PublicacionService } from '../services/publicacion.service.js';
 import { AppError } from '../errors/app.error.js';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 
 export class PublicacionController {
   constructor(
@@ -9,7 +10,7 @@ export class PublicacionController {
   ) {}
 
   crear = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response
   ): Promise<void> => {
     const { titulo, contenido } = req.body;
@@ -25,7 +26,8 @@ export class PublicacionController {
     const publicacion =
       await this.publicacionService.crearPublicacion({
         titulo,
-        contenido
+        contenido,
+        autorId: req.usuario?.id
       });
 
     res.status(201).json(publicacion);

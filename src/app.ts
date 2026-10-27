@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
+import path from 'node:path';
 
 import apiRoutes from './routes/v1/index.js';
 
@@ -12,14 +13,12 @@ app.use(
 );
 app.use(express.json());
 
-app.get('/', (_req: Request, res: Response) => {
-  res.status(200).json({
-    mensaje: 'API Foro Universitario funcionando',
-    api: '/api/v1'
-  });
-});
-
 app.use('/api/v1', apiRoutes);
+
+// Frontend de una sola página para visualizar el foro.
+app.use(
+  express.static(path.resolve(process.cwd(), 'public'))
+);
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({

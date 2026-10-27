@@ -23,7 +23,8 @@ export class PublicacionMemoryRepository
   ): Promise<Publicacion> {
     const publicacion: Publicacion = {
       id: this.siguienteId++,
-      ...datos
+      ...datos,
+      creadoEn: new Date().toISOString()
     };
 
     this.publicaciones.push(publicacion);
@@ -37,5 +38,9 @@ export class PublicacionMemoryRepository
     this.publicaciones = this.publicaciones.filter(
       (publicacion) => publicacion.id !== id
     );
+  }
+
+  async listar(): Promise<Publicacion[]> {
+    return [...this.publicaciones];
   }
 }

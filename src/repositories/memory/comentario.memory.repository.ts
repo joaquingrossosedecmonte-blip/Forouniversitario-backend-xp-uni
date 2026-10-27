@@ -15,11 +15,16 @@ export class ComentarioMemoryRepository
   ): Promise<Comentario> {
     const comentario: Comentario = {
       id: this.siguienteId++,
-      ...datos
+      ...datos,
+      creadoEn: new Date().toISOString()
     };
 
     this.comentarios.push(comentario);
 
     return comentario;
+  }
+
+  async listar(): Promise<Comentario[]> {
+    return [...this.comentarios];
   }
 }

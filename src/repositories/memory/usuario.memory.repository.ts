@@ -29,4 +29,16 @@ export class UsuarioMemoryRepository implements UsuarioRepository {
 
     return usuario;
   }
+
+  async buscarPorId(
+    id: number
+  ): Promise<Usuario | undefined> {
+    return this.usuarios.find(
+      (usuario) => usuario.id === id
+    );
+  }
+
+  async listar(): Promise<Usuario[]> {
+    return [...this.usuarios];
+  }
 }

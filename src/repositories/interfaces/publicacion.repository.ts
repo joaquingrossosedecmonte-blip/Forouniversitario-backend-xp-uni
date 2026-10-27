@@ -2,11 +2,14 @@ export interface Publicacion {
   id: number;
   titulo: string;
   contenido: string;
+  autorId?: number;
+  creadoEn: string;
 }
 
 export interface CrearPublicacion {
   titulo: string;
   contenido: string;
+  autorId?: number;
 }
 
 export interface PublicacionRepository {
@@ -21,4 +24,6 @@ export interface PublicacionRepository {
   eliminar(
     id: number
   ): Promise<void>;
+
+  listar(): Promise<Publicacion[]>;
 }

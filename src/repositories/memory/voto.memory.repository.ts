@@ -22,4 +22,8 @@ export class VotoMemoryRepository
 
     return voto;
   }
+
+  async listar(): Promise<Voto[]> {
+    return [...this.votos];
+  }
 }

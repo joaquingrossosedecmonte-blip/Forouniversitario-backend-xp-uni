@@ -13,4 +13,6 @@ export interface ReporteRepository {
   crear(
     datos: CrearReporte
   ): Promise<Reporte>;
+
+  listar(): Promise<Reporte[]>;
 }

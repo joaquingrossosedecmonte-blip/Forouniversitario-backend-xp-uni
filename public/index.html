@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Foro Universitario</title>
+  <meta name="description" content="Panel del Foro Universitario: publicaciones, comentarios, votos y usuarios.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 11h14M9 16h14M9 21h9' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner container">
+      <a class="brand" href="#" aria-label="Foro Universitario, inicio">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h9"/></svg>
+        </span>
+        <span class="brand__text">
+          <strong>Foro Universitario</strong>
+          <small>Panel de la API v1</small>
+        </span>
+      </a>
+
+      <div class="topbar__right">
+        <span class="status" id="api-status" data-state="checking">
+          <span class="status__dot"></span>
+          <span class="status__label">Conectando…</span>
+        </span>
+        <div id="session-area"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container page">
+    <section class="stats" aria-label="Resumen del foro">
+      <article class="stat">
+        <span class="stat__label">Publicaciones</span>
+        <span class="stat__value" id="stat-publicaciones">–</span>
+      </article>
+      <article class="stat">
+        <span class="stat__label">Comentarios</span>
+        <span class="stat__value" id="stat-comentarios">–</span>
+      </article>
+      <article class="stat">
+        <span class="stat__label">Votos</span>
+        <span class="stat__value" id="stat-votos">–</span>
+      </article>
+      <article class="stat">
+        <span class="stat__label">Usuarios</span>
+        <span class="stat__value" id="stat-usuarios">–</span>
+      </article>
+    </section>
+
+    <div class="layout">
+      <section class="feed" aria-labelledby="feed-title">
+        <div class="feed__head">
+          <h1 id="feed-title">Publicaciones</h1>
+          <div class="toolbar">
+            <label class="search">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="search" type="search" placeholder="Buscar por título, contenido o autor" aria-label="Buscar publicaciones">
+            </label>
+            <div class="segmented" role="radiogroup" aria-label="Ordenar publicaciones">
+              <button type="button" role="radio" aria-checked="true" data-sort="recientes">Recientes</button>
+              <button type="button" role="radio" aria-checked="false" data-sort="votadas">Más votadas</button>
+              <button type="button" role="radio" aria-checked="false" data-sort="comentadas">Más comentadas</button>
+            </div>
+            <div class="toolbar__end">
+              <label class="switch" title="Actualizar automáticamente cada 10 segundos">
+                <input type="checkbox" id="auto-refresh" checked>
+                <span class="switch__track"><span class="switch__thumb"></span></span>
+                <span class="switch__label">En vivo</span>
+              </label>
+              <button type="button" class="btn btn--ghost btn--icon" id="refresh" aria-label="Actualizar ahora" title="Actualizar ahora">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="posts" class="posts" aria-live="polite"></div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="card" id="composer-card" aria-labelledby="composer-title">
+          <header class="card__head">
+            <h2 id="composer-title">Nueva publicación</h2>
+          </header>
+          <div class="card__body" id="composer"></div>
+        </section>
+
+        <section class="card" id="admin-card" hidden aria-labelledby="admin-title">
+          <header class="card__head">
+            <h2 id="admin-title">Administración</h2>
+            <span class="badge badge--admin">ADMIN</span>
+          </header>
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-tab="usuarios">Usuarios</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="reportes">Reportes <span class="tabs__count" id="reportes-count">0</span></button>
+          </div>
+          <div class="card__body card__body--flush" id="admin-panel"></div>
+        </section>
+
+        <section class="card card--muted">
+          <div class="card__body">
+            <h2 class="card__title-sm">Acerca de este panel</h2>
+            <p class="muted">Muestra en tiempo real los datos de la API. Los datos viven en memoria: al reiniciar el servidor se pierden.</p>
+            <p class="muted">Endpoint base: <code>/api/v1</code></p>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <dialog class="modal" id="auth-modal" aria-labelledby="auth-title">
+    <form method="dialog" class="modal__close-form">
+      <button class="btn btn--ghost btn--icon modal__close" aria-label="Cerrar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </form>
+    <h2 id="auth-title" class="modal__title">Bienvenido al foro</h2>
+    <div class="tabs tabs--modal" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-auth-tab="login">Iniciar sesión</button>
+      <button type="button" role="tab" aria-selected="false" data-auth-tab="registro">Crear cuenta</button>
+    </div>
+
+    <form id="login-form" class="form" novalidate>
+      <label class="field">
+        <span class="field__label">Correo</span>
+        <input name="correo" type="email" autocomplete="username" required placeholder="nombre@universidad.com">
+      </label>
+      <label class="field">
+        <span class="field__label">Contraseña</span>
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <p class="form__error" role="alert"></p>
+      <button class="btn btn--primary btn--block" type="submit">Iniciar sesión</button>
+    </form>
+
+    <form id="registro-form" class="form" novalidate hidden>
+      <label class="field">
+        <span class="field__label">Nombre</span>
+        <input name="nombre" type="text" autocomplete="name" required placeholder="Ana Pérez">
+      </label>
+      <label class="field">
+        <span class="field__label">Correo</span>
+        <input name="correo" type="email" autocomplete="email" required placeholder="nombre@universidad.com">
+      </label>
+      <label class="field">
+        <span class="field__label">Contraseña</span>
+        <input name="password" type="password" autocomplete="new-password" required minlength="6">
+      </label>
+      <p class="form__error" role="alert"></p>
+      <button class="btn btn--primary btn--block" type="submit">Crear cuenta</button>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="report-modal" aria-labelledby="report-title">
+    <h2 id="report-title" class="modal__title">Reportar publicación</h2>
+    <p class="muted" id="report-target"></p>
+    <form id="report-form" class="form" novalidate>
+      <label class="field">
+        <span class="field__label">Motivo</span>
+        <textarea name="motivo" rows="3" required placeholder="Describí brevemente el problema"></textarea>
+      </label>
+      <p class="form__error" role="alert"></p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" type="button" data-close>Cancelar</button>
+        <button class="btn btn--primary" type="submit">Enviar reporte</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="confirm-modal" aria-labelledby="confirm-title">
+    <h2 id="confirm-title" class="modal__title">Eliminar publicación</h2>
+    <p class="muted" id="confirm-text"></p>
+    <div class="modal__actions">
+      <button class="btn btn--ghost" type="button" data-close>Cancelar</button>
+      <button class="btn btn--danger" type="button" id="confirm-ok">Eliminar</button>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="assertive"></div>
+
+  <script src="js/app.js" type="module"></script>
+</body>
+</html>

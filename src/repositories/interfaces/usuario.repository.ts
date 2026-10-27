@@ -18,4 +18,6 @@ export interface CrearUsuario {
 export interface UsuarioRepository {
   buscarPorCorreo(correo: string): Promise<Usuario | undefined>;
   crear(datos: CrearUsuario): Promise<Usuario>;
+  buscarPorId(id: number): Promise<Usuario | undefined>;
+  listar(): Promise<Usuario[]>;
 }
